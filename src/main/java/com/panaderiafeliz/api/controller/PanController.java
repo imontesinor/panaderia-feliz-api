@@ -22,7 +22,7 @@ public class PanController {
         this.servicio = servicio;
     }
 
-    // 🔹 Crear pan
+
     @Operation(
             summary = "Crear pan",
             description = "Registra un nuevo pan con nombre y precio válidos."
@@ -39,7 +39,7 @@ public class PanController {
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
-    // 🔹 Listar panes
+
     @Operation(
             summary = "Listar panes",
             description = "Devuelve todos los panes o filtra por nombre si se envía el parámetro."
@@ -55,7 +55,7 @@ public class PanController {
         return ResponseEntity.ok(servicio.listarPanes(q));
     }
 
-    // 🔹 Obtener pan por ID
+
     @Operation(
             summary = "Obtener pan por ID",
             description = "Busca un pan por su identificador único."
@@ -73,7 +73,7 @@ public class PanController {
         return ResponseEntity.ok(pan);
     }
 
-    // 🔹 Actualizar pan
+
     @Operation(
             summary = "Actualizar pan",
             description = "Modifica el nombre y/o el precio de un pan existente."
@@ -94,7 +94,7 @@ public class PanController {
         return ResponseEntity.ok(actualizado);
     }
 
-    // 🔹 Eliminar pan
+
     @Operation(
             summary = "Eliminar pan",
             description = "Elimina un pan existente por su ID."
