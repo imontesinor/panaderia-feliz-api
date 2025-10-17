@@ -3,8 +3,13 @@ package com.panaderiafeliz.api.controller;
 import com.panaderiafeliz.api.model.Pan;
 import com.panaderiafeliz.api.service.PanServicio;
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -17,33 +22,93 @@ public class PanController {
         this.servicio = servicio;
     }
 
+    // 🔹 Crear pan
+    @Operation(
+            summary = "Crear pan",
+            description = "Registra un nuevo pan con nombre y precio válidos."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Pan creado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o faltantes"),
+            @ApiResponse(responseCode = "409", description = "El nombre ya está registrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping
-    @Operation(summary = "Crear Panes", description = "Registrar un nuevo pan")
-    public ResponseEntity<?> crear(@RequestBody Pan body) {
-        return servicio.crearPan(body);
+    public ResponseEntity<Pan> crear(@RequestBody Pan body) {
+        Pan nuevo = servicio.crearPan(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
+    // 🔹 Listar panes
+    @Operation(
+            summary = "Listar panes",
+            description = "Devuelve todos los panes o filtra por nombre si se envía el parámetro."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de panes obtenida correctamente"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping
-    @Operation(summary = "Listar panes", description = "Obtiene todos los panes o filtra por nombre")
-    public ResponseEntity<?> listar(@RequestParam(required = false) String q) {
-        return servicio.listarPanes(q);
+    public ResponseEntity<List<Pan>> listar(
+            @Parameter(description = "Filtro opcional por nombre (case-insensitive)")
+            @RequestParam(required = false) String q) {
+        return ResponseEntity.ok(servicio.listarPanes(q));
     }
 
+    // 🔹 Obtener pan por ID
+    @Operation(
+            summary = "Obtener pan por ID",
+            description = "Busca un pan por su identificador único."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pan encontrado"),
+            @ApiResponse(responseCode = "404", description = "Pan no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar Panes", description = "Consulta mediante el id Busca de un pan espefico")
-    public ResponseEntity<?> obtener(@PathVariable Long id) {
-        return servicio.obtenerPan(id);
+    public ResponseEntity<Pan> obtener(
+            @Parameter(description = "ID del pan a buscar")
+            @PathVariable Long id) {
+        Pan pan = servicio.obtenerPan(id);
+        return ResponseEntity.ok(pan);
     }
 
+    // 🔹 Actualizar pan
+    @Operation(
+            summary = "Actualizar pan",
+            description = "Modifica el nombre y/o el precio de un pan existente."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Pan actualizado correctamente"),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos o faltantes"),
+            @ApiResponse(responseCode = "404", description = "Pan no encontrado"),
+            @ApiResponse(responseCode = "409", description = "Conflicto de nombre duplicado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PutMapping("/{id}")
-    @Operation(summary = "Actualizar Panes", description = "Modificar nombre y/o precio")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @RequestBody Pan body) {
-        return servicio.actualizarPan(id, body);
+    public ResponseEntity<Pan> actualizar(
+            @Parameter(description = "ID del pan a actualizar")
+            @PathVariable Long id,
+            @RequestBody Pan body) {
+        Pan actualizado = servicio.actualizarPan(id, body);
+        return ResponseEntity.ok(actualizado);
     }
 
+    // 🔹 Eliminar pan
+    @Operation(
+            summary = "Eliminar pan",
+            description = "Elimina un pan existente por su ID."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Pan eliminado correctamente"),
+            @ApiResponse(responseCode = "404", description = "Pan no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar Panes", description = "Borrar un pan por id")
-    public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        return servicio.eliminarPan(id);
+    public ResponseEntity<Void> eliminar(
+            @Parameter(description = "ID del pan a eliminar")
+            @PathVariable Long id) {
+        servicio.eliminarPan(id);
+        return ResponseEntity.noContent().build();
     }
 }
