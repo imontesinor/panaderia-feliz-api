@@ -1,5 +1,7 @@
 package com.panaderiafeliz.api.service;
 
+import com.panaderiafeliz.api.dto.PanDto;
+import com.panaderiafeliz.api.mapper.PanMapper;
 import com.panaderiafeliz.api.model.Pan;
 import com.panaderiafeliz.api.repository.PanRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,49 +19,62 @@ public class PanServicioImpl implements PanServicio {
 
     private final PanRepository repo;
 
-    public PanServicioImpl(PanRepository repo) {
+    private final PanMapper mapper;
+
+    public PanServicioImpl(PanRepository repo,PanMapper mapper) {
         this.repo = repo;
+        this.mapper=mapper;
     }
 
     @Override
-    public Pan crearPan(Pan body) {
+    public PanDto crearPan(PanDto body) {
+
         validar(body);
-        if (repo.existsByNombreIgnoreCase(body.getNombre())) {
+        if (repo.existsByNombreIgnoreCase(body.getTitulo())) {
             throw new IllegalArgumentException(MSG_DUPLICATE);
         }
         try {
-            return repo.save(body);
+            Pan pan = mapper.toEntity(body);
+            Pan save = repo.save(pan);
+           return mapper.toDto(save);
         } catch (DataIntegrityViolationException e) {
             throw e;
         }
     }
 
     @Override
-    public List<Pan> listarPanes(String q) {
-        return (q == null || q.isBlank())
+    public List<PanDto> listarPanes(String q) {
+        List<Pan> pan = (q == null || q.isBlank())
                 ? repo.findAll()
                 : repo.findByNombreContainingIgnoreCase(q.trim());
+        return  pan.stream().map(mapper :: toDto).toList();
     }
 
     @Override
-    public Pan obtenerPan(Long id) {
-        return repo.findById(id).orElseThrow(() -> new NoSuchElementException(MSG_NOT_FOUND));
+    public PanDto obtenerPan(Long id) {
+
+        Pan pan =repo.findById(id).orElseThrow(() -> new NoSuchElementException(MSG_NOT_FOUND));
+
+        return mapper.toDto(pan);
     }
 
     @Override
-    public Pan actualizarPan(Long id, Pan body) {
+    public PanDto actualizarPan(Long id, PanDto body) {
         Pan actual = repo.findById(id).orElseThrow(() -> new NoSuchElementException(MSG_NOT_FOUND));
         validar(body);
 
-        boolean cambiaNombre = !body.getNombre().equalsIgnoreCase(actual.getNombre());
-        if (cambiaNombre && repo.existsByNombreIgnoreCase(body.getNombre())) {
+        boolean cambiaNombre = !body.getTitulo().equalsIgnoreCase(actual.getNombre());
+        if (cambiaNombre && repo.existsByNombreIgnoreCase(body.getTitulo())) {
             throw new IllegalArgumentException(MSG_DUPLICATE);
         }
 
         try {
-            actual.setNombre(body.getNombre());
+            actual.setNombre(body.getTitulo());
             actual.setPrecio(body.getPrecio());
-            return repo.save(actual);
+            Pan pan = repo.save(actual);
+            return mapper.toDto(pan);
+
+
         } catch (DataIntegrityViolationException e) {
             throw e;
         }
@@ -72,9 +87,9 @@ public class PanServicioImpl implements PanServicio {
     }
 
 
-    private void validar(Pan p) {
+    private void validar(PanDto p) {
         if (p == null) throw new IllegalArgumentException("Cuerpo de la petición vacío");
-        String nombre = p.getNombre() == null ? null : p.getNombre().trim();
+        String nombre = p.getTitulo() == null ? null : p.getTitulo().trim();
         BigDecimal precio = p.getPrecio();
 
         if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("El nombre es obligatorio");
@@ -84,6 +99,6 @@ public class PanServicioImpl implements PanServicio {
         if (precio.compareTo(new BigDecimal("0.01")) < 0)
             throw new IllegalArgumentException("El precio debe ser mayor a 0");
 
-        p.setNombre(nombre);
+        p.setTitulo(nombre);
     }
 }
