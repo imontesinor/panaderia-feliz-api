@@ -1,5 +1,6 @@
 package com.panaderiafeliz.api.controller;
 
+import com.panaderiafeliz.api.dto.PanDto;
 import com.panaderiafeliz.api.model.Pan;
 import com.panaderiafeliz.api.service.PanServicio;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,8 +35,8 @@ public class PanController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PostMapping
-    public ResponseEntity<Pan> crear(@RequestBody Pan body) {
-        Pan nuevo = servicio.crearPan(body);
+    public ResponseEntity<PanDto> crear(@RequestBody PanDto body) {
+        PanDto nuevo = servicio.crearPan(body);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
     }
 
@@ -49,7 +50,7 @@ public class PanController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping
-    public ResponseEntity<List<Pan>> listar(
+    public ResponseEntity<List<PanDto>> listar(
             @Parameter(description = "Filtro opcional por nombre (case-insensitive)")
             @RequestParam(required = false) String q) {
         return ResponseEntity.ok(servicio.listarPanes(q));
@@ -66,10 +67,10 @@ public class PanController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Pan> obtener(
+    public ResponseEntity<PanDto> obtener(
             @Parameter(description = "ID del pan a buscar")
             @PathVariable Long id) {
-        Pan pan = servicio.obtenerPan(id);
+        PanDto pan = servicio.obtenerPan(id);
         return ResponseEntity.ok(pan);
     }
 
@@ -86,11 +87,11 @@ public class PanController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Pan> actualizar(
+    public ResponseEntity<PanDto> actualizar(
             @Parameter(description = "ID del pan a actualizar")
             @PathVariable Long id,
-            @RequestBody Pan body) {
-        Pan actualizado = servicio.actualizarPan(id, body);
+            @RequestBody PanDto body) {
+        PanDto actualizado = servicio.actualizarPan(id, body);
         return ResponseEntity.ok(actualizado);
     }
 

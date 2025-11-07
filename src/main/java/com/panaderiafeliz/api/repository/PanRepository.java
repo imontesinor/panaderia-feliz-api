@@ -1,5 +1,6 @@
 package com.panaderiafeliz.api.repository;
 
+import com.panaderiafeliz.api.dto.PanDto;
 import com.panaderiafeliz.api.model.Pan;
 import org.springframework.data.jpa.repository.JpaRepository;
 
